@@ -52,7 +52,6 @@ document.addEventListener('hero:reveal', () => {
     hero.classList.add('visible');
     heroWrap.classList.add('visible');
   });
-  orbitLayer.classList.add('visible');
 
   // each square clips (overflow: hidden) a full-size copy of the alt photo;
   // the copy is positioned with `transform` instead of animating the
@@ -81,16 +80,15 @@ document.addEventListener('hero:reveal', () => {
   let lastHRectWidth = null;
   let lastHRectHeight = null;
 
-  const tick = (time, deltaTime) => {
-    const dt = deltaTime / 1000;
-    angle += ANGULAR_SPEED * dt;
+  const updateFrame = () => {
+    // single getBoundingClientRect() read per frame, reused below for both
+    // the touch cursor fallback and the fill alignment — was previously two
+    // reads per frame on touch devices
+    const hRect = heroRect();
 
     if (isTouch) {
-      const r = heroRect();
-      cursor = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      cursor = { x: hRect.left + hRect.width / 2, y: hRect.top + hRect.height / 2 };
     }
-
-    const hRect = heroRect();
 
     // width/height only change during the entrance scale-in or on resize;
     // skip the (layout-triggering) size writes on every other frame
@@ -109,18 +107,33 @@ document.addEventListener('hero:reveal', () => {
       const offset = (i * 2 * Math.PI) / 3;
       const centerX = cursor.x + RADIUS * Math.cos(angle + offset);
       const centerY = cursor.y + RADIUS * Math.sin(angle + offset);
-      const left = centerX - SQUARE_SIZE / 2;
-      const top = centerY - SQUARE_SIZE / 2;
+      // rounded to whole pixels so the 1px border lands on a device-pixel
+      // boundary instead of being anti-aliased across two — subpixel offsets
+      // otherwise render the border thinner/blurrier than its true width
+      const left = Math.round(centerX - SQUARE_SIZE / 2);
+      const top = Math.round(centerY - SQUARE_SIZE / 2);
       square.style.transform = `translate3d(${left}px, ${top}px, 0)`;
 
       // align the fill layer with the hero image so it reads as a window
       // into the alternate photo at that exact spot — transform only, so
       // this never triggers a repaint, just a compositor update
-      const dx = hRect.left - left;
-      const dy = hRect.top - top;
+      const dx = Math.round(hRect.left) - left;
+      const dy = Math.round(hRect.top) - top;
       fills[i].style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
     });
   };
+
+  const tick = (time, deltaTime) => {
+    const dt = deltaTime / 1000;
+    angle += ANGULAR_SPEED * dt;
+    updateFrame();
+  };
+
+  // position the squares at the cursor before the layer is ever painted —
+  // otherwise they'd render one frame at their default CSS position
+  // (top-left corner) and visibly jump to the cursor once the first tick runs
+  updateFrame();
+  orbitLayer.classList.add('visible');
 
   // the orbit loop only needs to run while the hero is actually visible;
   // stop/resume the gsap ticker callback once #intro scrolls out/back in

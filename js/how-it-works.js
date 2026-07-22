@@ -7,6 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoNav = document.getElementById('logo-nav');
   const stepsWrap = document.getElementById('how-it-works-steps');
 
+  // whether the black wipe has (at least partially) covered the hero image;
+  // read live by updateLogo, which runs on every scroll frame independent
+  // of either ScrollTrigger's own progress range
+  let blackActive = false;
+
   const update = (progress) => {
     // b&w + text wipe across the first half of the pinned scroll, black
     // wipe across the second half, so the order is purely scroll-driven
@@ -18,13 +23,22 @@ document.addEventListener('DOMContentLoaded', () => {
     setWipe(black, blackProgress);
     setWipe(outlineText, blackProgress);
 
+    blackActive = blackProgress > 0;
+    updateLogo();
+  };
+
+  // re-checked from live layout on every scroll frame (via lenis's 'scroll'
+  // event below) rather than from a ScrollTrigger's onUpdate/onLeave, since
+  // those only fire while that trigger's own progress is still changing and
+  // go silent once it locks at 0 or 1 — which left the logo stuck stale
+  const updateLogo = () => {
     // black stays clamped at full coverage all the way through the steps
     // section below (same black background), but once that section has
     // scrolled fully past, the page underneath is light again — a 1px
     // tolerance since the true max scroll position lands at a sub-pixel
     // fraction above 0, never exactly 0
     const pastBlackSection = stepsWrap.getBoundingClientRect().bottom <= 1;
-    logoNav.classList.toggle('logo-white', blackProgress > 0 && !pastBlackSection);
+    logoNav.classList.toggle('logo-white', blackActive && !pastBlackSection);
   };
 
   ScrollTrigger.create({
@@ -48,9 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // slide-up + fade-in + slight rotation as each step's number enters view
   const stepNumbers = Array.from(document.querySelectorAll('.how-it-works-step-number'));
   const revealObserver = new IntersectionObserver(
-    (entries) => {
+    (entries, observer) => {
       entries.forEach((entry) => {
-        entry.target.classList.toggle('in-view', entry.isIntersecting);
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
       });
     },
     { threshold: 0.35 },
@@ -98,4 +115,10 @@ document.addEventListener('DOMContentLoaded', () => {
     onUpdate: (self) => updateLineProgress(self.progress),
   });
   window.addEventListener('resize', layoutLine);
+
+  if (window.lenis) {
+    window.lenis.on('scroll', updateLogo);
+  } else {
+    window.addEventListener('scroll', updateLogo, { passive: true });
+  }
 });
