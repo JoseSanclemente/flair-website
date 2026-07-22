@@ -8,8 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const stepsWrap = document.getElementById('how-it-works-steps');
 
   // whether the black wipe has (at least partially) covered the hero image;
-  // read live by updateLogo, which runs on every scroll frame independent
-  // of either ScrollTrigger's own progress range
+  // read live by updateLogo
   let blackActive = false;
 
   const update = (progress) => {
@@ -27,10 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateLogo();
   };
 
-  // re-checked from live layout on every scroll frame (via lenis's 'scroll'
-  // event below) rather than from a ScrollTrigger's onUpdate/onLeave, since
-  // those only fire while that trigger's own progress is still changing and
-  // go silent once it locks at 0 or 1 — which left the logo stuck stale
+  // re-checked from live layout; called from both ScrollTriggers below
+  // (section's onUpdate covers the pinned wipe, stepsWrap's onUpdate/onLeave/
+  // onLeaveBack covers scrolling further down through and back out of the
+  // steps section) so the logo never goes stale once a trigger's progress
+  // locks at 0 or 1
   const updateLogo = () => {
     // black stays clamped at full coverage all the way through the steps
     // section below (same black background), but once that section has
@@ -112,13 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
     end: () => `+=${stepsWrap.offsetHeight - window.innerHeight}`,
     scrub: true,
     invalidateOnRefresh: true,
-    onUpdate: (self) => updateLineProgress(self.progress),
+    onUpdate: (self) => {
+      updateLineProgress(self.progress);
+      updateLogo();
+    },
+    onLeave: updateLogo,
+    onLeaveBack: updateLogo,
   });
   window.addEventListener('resize', layoutLine);
-
-  if (window.lenis) {
-    window.lenis.on('scroll', updateLogo);
-  } else {
-    window.addEventListener('scroll', updateLogo, { passive: true });
-  }
 });

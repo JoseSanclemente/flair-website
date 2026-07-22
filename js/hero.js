@@ -1,19 +1,23 @@
 const isTouch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
 
 // squares are fixed to the viewport so they can trail the cursor anywhere on
-// screen; clip the layer to the hero's own bounding box on every scroll/resize
-// so squares never paint over sections below the hero, even mid-scroll
+// screen; clip the layer to the hero's own bounding box so squares never
+// paint over sections below the hero, even mid-scroll. Shared at module
+// scope (not just re-run on ScrollTrigger's own onUpdate cadence) so the
+// orbit loop below can re-clip on every animation frame it runs on — keeping
+// the clip line and the squares' positions always computed from the same
+// frame instead of drifting a frame apart during fast/smooth scroll
+const intro = document.getElementById('intro');
+const orbitLayer = document.getElementById('orbit-layer');
+
+const clipToIntro = () => {
+  const rect = intro.getBoundingClientRect();
+  const top = Math.max(rect.top, 0);
+  const bottom = Math.max(window.innerHeight - rect.bottom, 0);
+  orbitLayer.style.clipPath = `inset(${top}px 0px ${bottom}px 0px)`;
+};
+
 document.addEventListener('DOMContentLoaded', () => {
-  const intro = document.getElementById('intro');
-  const orbitLayer = document.getElementById('orbit-layer');
-
-  const clipToIntro = () => {
-    const rect = intro.getBoundingClientRect();
-    const top = Math.max(rect.top, 0);
-    const bottom = Math.max(window.innerHeight - rect.bottom, 0);
-    orbitLayer.style.clipPath = `inset(${top}px 0px ${bottom}px 0px)`;
-  };
-
   clipToIntro();
   ScrollTrigger.create({
     trigger: intro,
@@ -37,7 +41,6 @@ document.addEventListener('hero:reveal', () => {
   const hero = document.getElementById('hero');
   const heroWrap = document.getElementById('hero-wrap');
   const heroImg = document.getElementById('hero-img');
-  const orbitLayer = document.getElementById('orbit-layer');
   const squares = Array.from(document.querySelectorAll('.orbit-square'));
 
   // must stay in sync with the .orbit-square width/height breakpoint in
@@ -81,6 +84,11 @@ document.addEventListener('hero:reveal', () => {
   let lastHRectHeight = null;
 
   const updateFrame = () => {
+    // re-clip on the same frame as the square positions below, so the clip
+    // line and the squares are always computed from the same scroll read —
+    // otherwise they can drift a frame apart during fast/smooth scroll
+    clipToIntro();
+
     // single getBoundingClientRect() read per frame, reused below for both
     // the touch cursor fallback and the fill alignment — was previously two
     // reads per frame on touch devices
@@ -138,7 +146,6 @@ document.addEventListener('hero:reveal', () => {
   // the orbit loop only needs to run while the hero is actually visible;
   // stop/resume the gsap ticker callback once #intro scrolls out/back in
   // instead of burning CPU/battery for the rest of the page's lifetime
-  const intro = document.getElementById('intro');
   ScrollTrigger.create({
     trigger: intro,
     start: 'top bottom',
