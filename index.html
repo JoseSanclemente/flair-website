@@ -3,15 +3,56 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fashion AI</title>
+    <title>Flair — AI-Powered Styling</title>
+    <meta
+      name="description"
+      content="Flair is your AI personal stylist. Describe what you need in plain language and get complete, shoppable outfits tailored to your body, taste and budget — built from real products at connected stores. Join the waitlist."
+    />
+    <link rel="canonical" href="https://flairstyle.ai/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Flair" />
+    <meta property="og:title" content="Flair — AI-Powered Styling" />
+    <meta
+      property="og:description"
+      content="Describe what you need in plain language and get complete, shoppable outfits tailored to you — built from real products at connected stores. Join the waitlist."
+    />
+    <meta property="og:url" content="https://flairstyle.ai/" />
+    <meta
+      property="og:image"
+      content="https://flairstyle.ai/uploads/logo.png"
+    />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Flair — AI-Powered Styling" />
+    <meta
+      name="twitter:description"
+      content="Describe what you need in plain language and get complete, shoppable outfits tailored to you. Join the waitlist."
+    />
+    <meta
+      name="twitter:image"
+      content="https://flairstyle.ai/uploads/logo.png"
+    />
+
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" />
     <script>
-      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
       window.scrollTo(0, 0);
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="assets/css/satoshi.css" />
     <link rel="stylesheet" href="assets/css/variables.css" />
     <style>
+      :root {
+        --edge-x: var(--space-6);
+      }
+      @media (max-width: 640px) {
+        :root {
+          --edge-x: var(--space-4);
+        }
+      }
       html {
         overflow-y: scroll;
         scrollbar-gutter: stable;
@@ -77,6 +118,7 @@
       }
       #tagline-wrap {
         transition: opacity 0.5s ease;
+        text-align: center;
       }
       #tagline-wrap.fade-out {
         opacity: 0;
@@ -93,6 +135,38 @@
         opacity: 1;
         transform: scale(1);
       }
+      #hero-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #hero-stop,
+      #hero-guessing {
+        position: relative;
+        z-index: 40;
+        flex: 0 0 auto;
+        width: clamp(6rem, 16vw, 13rem);
+        font-family: var(--font-sans);
+        color: var(--color-ink);
+        font-weight: 900;
+        font-size: clamp(1.5rem, 4vw, 3.5rem);
+        letter-spacing: 0.02em;
+        line-height: 1;
+        opacity: 0;
+        transition: opacity 1s ease;
+      }
+      #hero-wrap.visible #hero-stop,
+      #hero-wrap.visible #hero-guessing {
+        opacity: 1;
+      }
+      #hero-stop {
+        text-align: right;
+        margin-right: var(--space-6);
+      }
+      #hero-guessing {
+        text-align: left;
+        margin-left: var(--space-6);
+      }
       #orbit-layer {
         display: none;
         position: fixed;
@@ -106,7 +180,7 @@
       .how-it-works-pin {
         position: sticky;
         top: 0;
-        height: 100vh;
+        height: 100svh;
         overflow: hidden;
       }
       .how-it-works-bw {
@@ -170,7 +244,7 @@
       .discover-yourself-pin {
         position: sticky;
         top: 0;
-        height: 100vh;
+        height: 100svh;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -178,7 +252,7 @@
       .discover-yourself-stage {
         position: relative;
         flex: 1;
-        margin: var(--space-6);
+        margin: var(--space-9) var(--edge-x);
       }
       .discover-yourself-img {
         position: absolute;
@@ -191,6 +265,17 @@
       .discover-yourself-v2,
       .discover-yourself-v3 {
         clip-path: inset(0 100% 0 0);
+      }
+      .discover-yourself-divider {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--color-mist);
+        z-index: 2;
+        pointer-events: none;
+        opacity: 0;
+        transform: translateX(-50%);
       }
       #how-it-works-steps {
         background: #000;
@@ -211,7 +296,7 @@
         display: flex;
         align-items: center;
         gap: var(--space-9);
-        padding: 0 var(--space-6);
+        padding: 0 var(--edge-x);
       }
       .how-it-works-step-image {
         flex: 0 0 32%;
@@ -354,16 +439,101 @@
         overflow: hidden;
         will-change: transform;
       }
+      @media (max-width: 640px) {
+        #intro {
+          height: 100vh;
+          min-height: 100vh;
+        }
+        #about {
+          height: 100vh;
+          min-height: 0;
+          overflow: hidden;
+        }
+        #about .about-col-text {
+          flex: 0 0 auto;
+        }
+        #about .about-col-image {
+          flex: 1 1 0;
+          min-height: 0;
+        }
+        #hero-wrap {
+          flex-wrap: wrap;
+          row-gap: var(--space-4);
+        }
+        #hero {
+          order: 1;
+          flex-basis: 100%;
+          justify-content: center;
+        }
+        #hero-stop,
+        #hero-guessing {
+          order: 2;
+          width: auto;
+        }
+        #hero-stop {
+          margin-right: 0.3em;
+        }
+        #hero-guessing {
+          margin-left: 0.3em;
+        }
+        .how-it-works-counter-rail {
+          display: none;
+        }
+        .how-it-works-step-inner {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: var(--space-6);
+        }
+        .how-it-works-step-image {
+          flex: 0 0 auto;
+          width: 100%;
+          max-width: 100%;
+        }
+        .how-it-works-step-number .num {
+          font-size: 4rem;
+        }
+        .how-it-works-pin {
+          display: flex;
+          flex-direction: column;
+        }
+        .how-it-works-img-wrap {
+          flex: 1;
+          min-height: 0;
+        }
+        #how-it-works-img,
+        .how-it-works-bw {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: 80% center;
+        }
+        .section-title {
+          position: absolute;
+          top: 64px;
+          left: 0;
+          width: 100%;
+          text-align: center;
+          margin-top: 0;
+          z-index: 25;
+        }
+      }
     </style>
   </head>
   <body
     style="background-color: var(--color-mist)"
     class="flex flex-col items-center w-full"
   >
-    <div id="intro" class="min-h-screen w-full flex flex-col items-center justify-center gap-6">
+    <div
+      id="intro"
+      class="min-h-screen w-full flex flex-col items-center justify-center gap-6"
+    >
       <header>
         <nav id="logo-nav">
-          <img src="assets/images/logo.png" alt="Fashion AI logo" class="w-32" />
+          <img
+            src="assets/images/logo.png"
+            alt="Fashion AI logo"
+            class="w-32"
+          />
         </nav>
       </header>
       <main>
@@ -375,17 +545,25 @@
           <span id="tagline" data-text="Your AI personal stylist."></span
           ><span class="cursor">|</span>
         </p>
-        <div id="hero" class="relative">
-          <img
-            id="hero-img"
-            src="assets/images/1.webp"
-            alt="Model wearing the base look"
-            class="w-[42rem] max-w-[90vw]"
-          />
+        <div id="hero-wrap" class="relative">
+          <span id="hero-stop">STOP</span>
+          <div id="hero" class="relative">
+            <img
+              id="hero-img"
+              src="assets/images/1.webp"
+              alt="Model wearing the base look"
+              class="w-[42rem] max-w-[90vw]"
+            />
+          </div>
+          <span id="hero-guessing">GUESSING</span>
         </div>
       </main>
     </div>
-    <section id="about" class="w-full">
+    <section
+      id="about"
+      class="w-full"
+      style="min-height: 100vh; display: flex; flex-direction: column"
+    >
       <hr
         style="
           border: none;
@@ -395,32 +573,59 @@
           z-index: 31;
         "
       />
-      <div class="flex flex-col md:flex-row">
-        <div class="w-full md:w-1/2">
+      <div class="flex flex-col md:flex-row" style="flex: 1">
+        <div
+          class="w-full md:w-1/2 about-col-text"
+          style="display: flex; flex-direction: column"
+        >
           <h2
-            style="font-family: var(--font-sans); color: var(--color-ink); padding: 0 var(--space-6); margin-top: var(--space-3)"
+            style="
+              font-family: var(--font-sans);
+              color: var(--color-ink);
+              padding: 0 var(--edge-x);
+              margin-top: var(--space-3);
+            "
             class="text-sm uppercase tracking-widest"
           >
             About Us
           </h2>
-          <div style="padding: var(--space-9) var(--space-6)">
+          <div
+            style="
+              padding: var(--space-9) var(--edge-x);
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              flex: 1;
+            "
+          >
             <h3
-              style="font-family: var(--font-sans); color: var(--color-ink); max-width: 50rem"
+              style="
+                font-family: var(--font-sans);
+                color: var(--color-ink);
+                max-width: 50rem;
+              "
               class="text-4xl md:text-5xl font-bold uppercase leading-tight"
             >
               Flair is an AI stylist that dresses you for real life.
             </h3>
             <p
-              style="font-family: var(--font-sans); color: var(--color-ink); opacity: 0.7; max-width: 40rem; margin-top: var(--space-6)"
+              style="
+                font-family: var(--font-sans);
+                color: var(--color-ink);
+                opacity: 0.7;
+                max-width: 40rem;
+                margin-top: var(--space-6);
+              "
               class="text-lg"
             >
-              Tell it the occasion, the vibe, or the exact piece you want, and it puts together
-              complete, shoppable outfits chosen to fit your body, your taste and your budget, using
-              real products from connected stores.
+              Tell it the occasion, the vibe, or the exact piece you want, and
+              it puts together complete, shoppable outfits chosen to fit your
+              body, your taste and your budget, using real products from
+              connected stores.
             </p>
           </div>
         </div>
-        <div class="w-full md:w-1/2">
+        <div class="w-full md:w-1/2 about-col-image">
           <img
             src="assets/images/about_us.webp"
             alt="About Flair"
@@ -429,7 +634,11 @@
         </div>
       </div>
     </section>
-    <section id="how-it-works" class="w-full" style="height: 300vh; position: relative">
+    <section
+      id="how-it-works"
+      class="w-full"
+      style="height: 300svh; position: relative"
+    >
       <div class="how-it-works-pin">
         <hr
           style="
@@ -440,8 +649,9 @@
             z-index: 31;
           "
         />
-        <div style="position: relative">
+        <div class="how-it-works-img-wrap" style="position: relative">
           <img
+            id="how-it-works-img"
             src="assets/images/how_it_works.webp"
             alt="How Flair works"
             style="display: block; width: 100%"
@@ -456,13 +666,13 @@
             style="
               font-family: var(--font-sans);
               color: var(--color-ink);
-              padding: 0 var(--space-6);
+              padding: 0 var(--edge-x);
               margin-top: var(--space-3);
               position: absolute;
               top: 0;
               left: 0;
             "
-            class="text-sm uppercase tracking-widest"
+            class="text-sm uppercase tracking-widest section-title"
           >
             How It Works
           </h2>
@@ -491,8 +701,8 @@
               <div class="how-it-works-step-copy">
                 <span class="how-it-works-step-mark">*</span>
                 <p>
-                  Create a 3D model of yourself so every recommendation is tailored to your exact
-                  weight and height.
+                  Create a 3D model of yourself so every recommendation is
+                  tailored to your exact weight and height.
                 </p>
               </div>
               <div class="how-it-works-step-number">
@@ -510,7 +720,10 @@
             <div class="how-it-works-step-body">
               <div class="how-it-works-step-copy">
                 <span class="how-it-works-step-mark">*</span>
-                <p>Tell Flair the vibe, the event or the mood you want to express, in your own words.</p>
+                <p>
+                  Tell Flair the vibe, the event or the mood you want to
+                  express, in your own words.
+                </p>
               </div>
               <div class="how-it-works-step-number">
                 <span class="num">002</span>
@@ -527,7 +740,10 @@
             <div class="how-it-works-step-body">
               <div class="how-it-works-step-copy">
                 <span class="how-it-works-step-mark">*</span>
-                <p>Choose between real clothing options curated for you and buy them right away.</p>
+                <p>
+                  Choose between real clothing options curated for you and buy
+                  them right away.
+                </p>
               </div>
               <div class="how-it-works-step-number">
                 <span class="num">003</span>
@@ -544,7 +760,10 @@
             <div class="how-it-works-step-body">
               <div class="how-it-works-step-copy">
                 <span class="how-it-works-step-mark">*</span>
-                <p>Save every outfit Flair builds you and grow your own virtual closet over time.</p>
+                <p>
+                  Save every outfit Flair builds you and grow your own virtual
+                  closet over time.
+                </p>
               </div>
               <div class="how-it-works-step-number">
                 <span class="num">004</span>
@@ -580,7 +799,11 @@
         </div>
       </div>
     </div>
-    <section id="discover-yourself" class="w-full" style="background: #fff; height: 200vh; position: relative">
+    <section
+      id="discover-yourself"
+      class="w-full"
+      style="background: #fff; height: 200svh; position: relative"
+    >
       <div class="discover-yourself-pin">
         <hr
           style="
@@ -592,13 +815,22 @@
           "
         />
         <h2
-          style="font-family: var(--font-sans); color: var(--color-ink); padding: 0 var(--space-6); margin-top: var(--space-3)"
-          class="text-sm uppercase tracking-widest"
+          style="
+            font-family: var(--font-sans);
+            color: var(--color-ink);
+            padding: 0 var(--edge-x);
+            margin-top: var(--space-3);
+          "
+          class="text-sm uppercase tracking-widest section-title"
         >
           Discover Yourself
         </h2>
         <div class="discover-yourself-stage">
-          <img src="assets/images/v1.webp" alt="" class="discover-yourself-img discover-yourself-v1" />
+          <img
+            src="assets/images/v1.webp"
+            alt=""
+            class="discover-yourself-img discover-yourself-v1"
+          />
           <img
             src="assets/images/v2.webp"
             alt=""
@@ -611,6 +843,7 @@
             aria-hidden="true"
             class="discover-yourself-img discover-yourself-v3"
           />
+          <div class="discover-yourself-divider" aria-hidden="true"></div>
         </div>
       </div>
     </section>
@@ -626,7 +859,7 @@
     <script src="js/how-it-works.js" defer></script>
     <script src="js/discover-yourself.js" defer></script>
     <script>
-      window.addEventListener('load', () => window.scrollTo(0, 0));
+      window.addEventListener("load", () => window.scrollTo(0, 0));
     </script>
   </body>
 </html>

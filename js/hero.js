@@ -30,6 +30,7 @@ if (!isTouch) {
 
 document.addEventListener('hero:reveal', () => {
   const hero = document.getElementById('hero');
+  const heroWrap = document.getElementById('hero-wrap');
   const heroImg = document.getElementById('hero-img');
   const orbitLayer = document.getElementById('orbit-layer');
   const squares = Array.from(document.querySelectorAll('.orbit-square'));
@@ -38,9 +39,12 @@ document.addEventListener('hero:reveal', () => {
   const RADIUS = 90;
   const ANGULAR_SPEED = 1.2; // radians per second
 
-  hero.style.display = 'block';
+  hero.style.display = 'flex';
   void hero.offsetWidth; // force reflow so the pre-transition state (scale 1.35, opacity 0) paints first
-  requestAnimationFrame(() => hero.classList.add('visible'));
+  requestAnimationFrame(() => {
+    hero.classList.add('visible');
+    heroWrap.classList.add('visible');
+  });
   orbitLayer.classList.add('visible');
 
   squares.forEach((square) => {
