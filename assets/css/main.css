@@ -404,8 +404,20 @@ html.lenis body {
   height: 190px;
   border: 1px solid var(--color-ink);
   background-color: var(--color-mist);
-  background-repeat: no-repeat;
   overflow: hidden;
+  will-change: transform;
+}
+@media (min-width: 641px) {
+  .orbit-square {
+    width: 220px;
+    height: 220px;
+  }
+}
+.orbit-square-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-repeat: no-repeat;
   will-change: transform;
 }
 @media (max-width: 640px) {

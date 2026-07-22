@@ -15,7 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   clipToIntro();
-  onScrollTick(clipToIntro);
+  ScrollTrigger.create({
+    trigger: intro,
+    start: 'top bottom',
+    end: 'bottom top',
+    onUpdate: clipToIntro,
+    onRefresh: clipToIntro,
+  });
 });
 
 // tracked from page load so the real cursor position is already known by
@@ -34,7 +40,9 @@ document.addEventListener('hero:reveal', () => {
   const orbitLayer = document.getElementById('orbit-layer');
   const squares = Array.from(document.querySelectorAll('.orbit-square'));
 
-  const SQUARE_SIZE = 190;
+  // must stay in sync with the .orbit-square width/height breakpoint in
+  // assets/css/main.css — used to center the square on its computed position
+  const SQUARE_SIZE = window.matchMedia('(min-width: 641px)').matches ? 220 : 190;
   const RADIUS = 90;
   const ANGULAR_SPEED = 1.2; // radians per second
 
@@ -46,8 +54,16 @@ document.addEventListener('hero:reveal', () => {
   });
   orbitLayer.classList.add('visible');
 
-  squares.forEach((square) => {
-    square.style.backgroundImage = `url(${square.dataset.img})`;
+  // each square clips (overflow: hidden) a full-size copy of the alt photo;
+  // the copy is positioned with `transform` instead of animating the
+  // square's own background-position/size, so the browser only has to
+  // composite (GPU) every frame instead of repainting (main thread)
+  const fills = squares.map((square) => {
+    const fill = document.createElement('div');
+    fill.className = 'orbit-square-fill';
+    fill.style.backgroundImage = `url(${square.dataset.img})`;
+    square.appendChild(fill);
+    return fill;
   });
 
   const heroRect = () => heroImg.getBoundingClientRect();
@@ -58,27 +74,15 @@ document.addEventListener('hero:reveal', () => {
   }
 
   let angle = 0;
-  let lastTime = performance.now();
 
-  // the orbit loop only needs to run while the hero is actually visible;
-  // stop rescheduling rAF once #intro scrolls out (and resume when it scrolls
-  // back in) instead of burning CPU/battery for the rest of the page's lifetime
-  let rafId = null;
-  const intro = document.getElementById('intro');
-  new IntersectionObserver((entries) => {
-    const visible = entries[0].isIntersecting;
-    if (visible && rafId === null) {
-      lastTime = performance.now();
-      rafId = requestAnimationFrame(tick);
-    } else if (!visible && rafId !== null) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
-    }
-  }).observe(intro);
+  // only touched when the hero's rendered size actually changes (during the
+  // ~1s entrance scale-in, then never again outside of a resize), so the
+  // steady-state orbit loop below only ever writes `transform`
+  let lastHRectWidth = null;
+  let lastHRectHeight = null;
 
-  const tick = (now) => {
-    const dt = (now - lastTime) / 1000;
-    lastTime = now;
+  const tick = (time, deltaTime) => {
+    const dt = deltaTime / 1000;
     angle += ANGULAR_SPEED * dt;
 
     if (isTouch) {
@@ -88,6 +92,19 @@ document.addEventListener('hero:reveal', () => {
 
     const hRect = heroRect();
 
+    // width/height only change during the entrance scale-in or on resize;
+    // skip the (layout-triggering) size writes on every other frame
+    const sizeChanged = hRect.width !== lastHRectWidth || hRect.height !== lastHRectHeight;
+    if (sizeChanged) {
+      lastHRectWidth = hRect.width;
+      lastHRectHeight = hRect.height;
+      fills.forEach((fill) => {
+        fill.style.width = `${hRect.width}px`;
+        fill.style.height = `${hRect.height}px`;
+        fill.style.backgroundSize = `${hRect.width}px ${hRect.height}px`;
+      });
+    }
+
     squares.forEach((square, i) => {
       const offset = (i * 2 * Math.PI) / 3;
       const centerX = cursor.x + RADIUS * Math.cos(angle + offset);
@@ -96,14 +113,26 @@ document.addEventListener('hero:reveal', () => {
       const top = centerY - SQUARE_SIZE / 2;
       square.style.transform = `translate3d(${left}px, ${top}px, 0)`;
 
-      // align the square's background with the hero image so it reads as a
-      // window into the alternate photo at that exact spot
-      square.style.backgroundSize = `${hRect.width}px ${hRect.height}px`;
-      square.style.backgroundPosition = `${-(left - hRect.left)}px ${-(top - hRect.top)}px`;
+      // align the fill layer with the hero image so it reads as a window
+      // into the alternate photo at that exact spot — transform only, so
+      // this never triggers a repaint, just a compositor update
+      const dx = hRect.left - left;
+      const dy = hRect.top - top;
+      fills[i].style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
     });
-
-    rafId = requestAnimationFrame(tick);
   };
 
-  rafId = requestAnimationFrame(tick);
+  // the orbit loop only needs to run while the hero is actually visible;
+  // stop/resume the gsap ticker callback once #intro scrolls out/back in
+  // instead of burning CPU/battery for the rest of the page's lifetime
+  const intro = document.getElementById('intro');
+  ScrollTrigger.create({
+    trigger: intro,
+    start: 'top bottom',
+    end: 'bottom top',
+    onEnter: () => gsap.ticker.add(tick),
+    onEnterBack: () => gsap.ticker.add(tick),
+    onLeave: () => gsap.ticker.remove(tick),
+    onLeaveBack: () => gsap.ticker.remove(tick),
+  });
 });

@@ -5,9 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const v3 = section.querySelector('.discover-yourself-v3');
   const divider = section.querySelector('.discover-yourself-divider');
 
-  const update = () => {
-    const progress = getPinnedProgress(section);
-
+  const update = (progress) => {
     const v2Progress = clamp01(progress / 0.5);
     const v3Progress = clamp01((progress - 0.5) / 0.5);
     setWipe(v2, v2Progress);
@@ -23,6 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  onScrollTick(update);
-  update();
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top top',
+    end: () => `+=${section.offsetHeight - window.innerHeight}`,
+    scrub: true,
+    invalidateOnRefresh: true,
+    onUpdate: (self) => update(self.progress),
+  });
+  update(0);
 });

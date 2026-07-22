@@ -7,9 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoNav = document.getElementById('logo-nav');
   const stepsWrap = document.getElementById('how-it-works-steps');
 
-  const update = () => {
-    const progress = getPinnedProgress(section);
-
+  const update = (progress) => {
     // b&w + text wipe across the first half of the pinned scroll, black
     // wipe across the second half, so the order is purely scroll-driven
     const bwProgress = clamp01(progress / 0.5);
@@ -29,8 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     logoNav.classList.toggle('logo-white', blackProgress > 0 && !pastBlackSection);
   };
 
-  onScrollTick(update);
-  update();
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top top',
+    end: () => `+=${section.offsetHeight - window.innerHeight}`,
+    scrub: true,
+    invalidateOnRefresh: true,
+    onUpdate: (self) => update(self.progress),
+  });
+  update(0);
 
   // steps below scroll normally, driving the counter line + marker fill
   // directly from scroll position so both move 1:1 with the user
@@ -74,9 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  const updateLineProgress = () => {
-    const progress = getPinnedProgress(stepsWrap);
-
+  const updateLineProgress = (progress) => {
     // tracks live scroll position 1:1, growing and shrinking with it
     counterLineFill.style.height = `${progress * 100}%`;
     counterItems.forEach((item, i) => {
@@ -85,7 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   layoutLine();
-  updateLineProgress();
-  onScrollTick(updateLineProgress);
+  updateLineProgress(0);
+  ScrollTrigger.create({
+    trigger: stepsWrap,
+    start: 'top top',
+    end: () => `+=${stepsWrap.offsetHeight - window.innerHeight}`,
+    scrub: true,
+    invalidateOnRefresh: true,
+    onUpdate: (self) => updateLineProgress(self.progress),
+  });
   window.addEventListener('resize', layoutLine);
 });
