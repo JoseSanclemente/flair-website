@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fashion AI</title>
+    <script>
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      window.scrollTo(0, 0);
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/satoshi.css" />
+    <link rel="stylesheet" href="assets/css/variables.css" />
+    <style>
+      html {
+        overflow-y: scroll;
+        scrollbar-gutter: stable;
+      }
+      html.lenis,
+      html.lenis body {
+        height: auto;
+      }
+      .lenis.lenis-smooth {
+        scroll-behavior: auto !important;
+      }
+      .lenis.lenis-stopped {
+        overflow: hidden;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+      .cursor {
+        display: inline-block;
+        animation: blink 0.8s step-end infinite;
+      }
+      #logo-nav {
+        display: flex;
+        justify-content: center;
+      }
+      #logo-nav img {
+        transition: filter 0.4s ease;
+      }
+      #logo-nav.logo-white img {
+        filter: brightness(0) invert(1);
+      }
+      #logo-nav.nav-fixed {
+        position: fixed;
+        top: var(--space-4);
+        left: 0;
+        right: 0;
+        z-index: 40;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-3);
+      }
+      #nav-links {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.6s ease;
+      }
+      #nav-links.visible {
+        opacity: 1;
+      }
+      #nav-links a {
+        font-family: var(--font-sans);
+        color: var(--color-ink);
+        text-decoration: none;
+      }
+      #nav-links a:hover {
+        text-decoration: underline;
+      }
+      #tagline-wrap {
+        transition: opacity 0.5s ease;
+      }
+      #tagline-wrap.fade-out {
+        opacity: 0;
+      }
+      #hero {
+        display: none;
+        opacity: 0;
+        transform: scale(1.35);
+        transition:
+          opacity 1s ease,
+          transform 1s ease;
+      }
+      #hero.visible {
+        opacity: 1;
+        transform: scale(1);
+      }
+      #orbit-layer {
+        display: none;
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 30;
+      }
+      #orbit-layer.visible {
+        display: block;
+      }
+      .how-it-works-pin {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .how-it-works-bw {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(100%);
+        clip-path: inset(0 100% 0 0);
+      }
+      .how-it-works-text {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        text-align: center;
+        pointer-events: none;
+        clip-path: inset(0 100% 0 0);
+      }
+      .how-it-works-text span {
+        font-family: var(--font-sans);
+        color: #000;
+        font-weight: 700;
+        text-transform: uppercase;
+        line-height: 0.95;
+        font-size: 12vw;
+      }
+      .how-it-works-black {
+        position: absolute;
+        inset: 0;
+        background: #000;
+        clip-path: inset(0 100% 0 0);
+        pointer-events: none;
+      }
+      .how-it-works-outline-text {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        text-align: center;
+        pointer-events: none;
+        clip-path: inset(0 100% 0 0);
+      }
+      .how-it-works-outline-text span {
+        font-family: var(--font-sans);
+        color: #fff;
+        font-weight: 700;
+        text-transform: uppercase;
+        line-height: 0.95;
+        font-size: 12vw;
+      }
+      .discover-yourself-pin {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .discover-yourself-stage {
+        position: relative;
+        flex: 1;
+        margin: var(--space-6);
+      }
+      .discover-yourself-img {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .discover-yourself-v2,
+      .discover-yourself-v3 {
+        clip-path: inset(0 100% 0 0);
+      }
+      #how-it-works-steps {
+        background: #000;
+        display: flex;
+        align-items: flex-start;
+      }
+      .how-it-works-steps-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .how-it-works-step {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+      }
+      .how-it-works-step-inner {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: var(--space-9);
+        padding: 0 var(--space-6);
+      }
+      .how-it-works-step-image {
+        flex: 0 0 32%;
+        aspect-ratio: 3 / 4;
+        border: 1px dashed rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .how-it-works-step-image-split {
+        border: none;
+        background: none;
+        display: flex;
+        flex-direction: column;
+      }
+      .how-it-works-step-image-split img {
+        width: 100%;
+        flex: 1 1 0;
+        min-height: 0;
+        object-fit: cover;
+        object-position: center top;
+      }
+      .how-it-works-step-image-split .split-divider {
+        flex: 0 0 auto;
+        border: none;
+        border-top: 1px solid #fff;
+        margin: 0;
+      }
+      .how-it-works-step-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .how-it-works-step-copy {
+        display: flex;
+        gap: var(--space-3);
+        max-width: 34rem;
+      }
+      .how-it-works-step-copy .how-it-works-step-mark {
+        font-family: var(--font-sans);
+        color: #fff;
+        font-size: 1.5rem;
+        line-height: 1;
+      }
+      .how-it-works-step-copy p {
+        font-family: var(--font-sans);
+        color: #fff;
+        opacity: 0.7;
+      }
+      .how-it-works-step-number {
+        display: flex;
+        align-items: flex-end;
+        gap: var(--space-3);
+        margin-top: var(--space-6);
+        opacity: 0;
+        transform: translateY(48px) rotate(-2deg);
+        transition:
+          opacity 0.8s ease,
+          transform 0.8s ease;
+      }
+      .how-it-works-step-number.in-view {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+      }
+      .how-it-works-step-number .num {
+        font-family: var(--font-sans);
+        color: #fff;
+        font-weight: 700;
+        font-size: 9rem;
+        line-height: 0.8;
+      }
+      .how-it-works-step-number .caption {
+        font-family: var(--font-sans);
+        color: #fff;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        line-height: 1.3;
+        padding-bottom: var(--space-3);
+      }
+      .how-it-works-step-rule {
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.4);
+        margin-top: var(--space-6);
+      }
+      .how-it-works-counter-rail {
+        flex: 0 0 auto;
+        align-self: stretch;
+      }
+      .how-it-works-counter {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        padding: var(--space-9) var(--space-6);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .how-it-works-counter-line {
+        position: absolute;
+        width: 1px;
+      }
+      .how-it-works-counter-line-fill {
+        width: 100%;
+        height: 0%;
+        background: #fff;
+      }
+      .how-it-works-counter-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+      }
+      .how-it-works-counter-item .marker {
+        display: inline-block;
+        flex-shrink: 0;
+        width: 8px;
+        height: 8px;
+        border: 1px solid #fff;
+        background: transparent;
+      }
+      .how-it-works-counter-item.active .marker {
+        background: #fff;
+      }
+      .how-it-works-counter-item .label {
+        font-family: var(--font-sans);
+        color: #fff;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        font-variant-numeric: tabular-nums;
+        width: 2.25rem;
+        text-align: left;
+      }
+      .orbit-square {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 190px;
+        height: 190px;
+        border: 1px solid var(--color-ink);
+        background-color: var(--color-mist);
+        background-repeat: no-repeat;
+        overflow: hidden;
+        will-change: transform;
+      }
+    </style>
+  </head>
+  <body
+    style="background-color: var(--color-mist)"
+    class="flex flex-col items-center w-full"
+  >
+    <div id="intro" class="min-h-screen w-full flex flex-col items-center justify-center gap-6">
+      <header>
+        <nav id="logo-nav">
+          <img src="assets/images/logo.png" alt="Fashion AI logo" class="w-32" />
+        </nav>
+      </header>
+      <main>
+        <p
+          id="tagline-wrap"
+          style="font-family: var(--font-sans); color: var(--color-ink)"
+          class="text-xl"
+        >
+          <span id="tagline" data-text="Your AI personal stylist."></span
+          ><span class="cursor">|</span>
+        </p>
+        <div id="hero" class="relative">
+          <img
+            id="hero-img"
+            src="assets/images/1.webp"
+            alt="Model wearing the base look"
+            class="w-[42rem] max-w-[90vw]"
+          />
+        </div>
+      </main>
+    </div>
+    <section id="about" class="w-full">
+      <hr
+        style="
+          border: none;
+          border-top: 1px solid var(--color-ink);
+          margin: 0;
+          position: relative;
+          z-index: 31;
+        "
+      />
+      <div class="flex flex-col md:flex-row">
+        <div class="w-full md:w-1/2">
+          <h2
+            style="font-family: var(--font-sans); color: var(--color-ink); padding: 0 var(--space-6); margin-top: var(--space-3)"
+            class="text-sm uppercase tracking-widest"
+          >
+            About Us
+          </h2>
+          <div style="padding: var(--space-9) var(--space-6)">
+            <h3
+              style="font-family: var(--font-sans); color: var(--color-ink); max-width: 50rem"
+              class="text-4xl md:text-5xl font-bold uppercase leading-tight"
+            >
+              Flair is an AI stylist that dresses you for real life.
+            </h3>
+            <p
+              style="font-family: var(--font-sans); color: var(--color-ink); opacity: 0.7; max-width: 40rem; margin-top: var(--space-6)"
+              class="text-lg"
+            >
+              Tell it the occasion, the vibe, or the exact piece you want, and it puts together
+              complete, shoppable outfits chosen to fit your body, your taste and your budget, using
+              real products from connected stores.
+            </p>
+          </div>
+        </div>
+        <div class="w-full md:w-1/2">
+          <img
+            src="assets/images/about_us.webp"
+            alt="About Flair"
+            style="display: block; width: 100%; height: 100%; object-fit: cover"
+          />
+        </div>
+      </div>
+    </section>
+    <section id="how-it-works" class="w-full" style="height: 300vh; position: relative">
+      <div class="how-it-works-pin">
+        <hr
+          style="
+            border: none;
+            border-top: 1px solid var(--color-ink);
+            margin: 0;
+            position: relative;
+            z-index: 31;
+          "
+        />
+        <div style="position: relative">
+          <img
+            src="assets/images/how_it_works.webp"
+            alt="How Flair works"
+            style="display: block; width: 100%"
+          />
+          <img
+            src="assets/images/how_it_works.webp"
+            alt=""
+            aria-hidden="true"
+            class="how-it-works-bw"
+          />
+          <h2
+            style="
+              font-family: var(--font-sans);
+              color: var(--color-ink);
+              padding: 0 var(--space-6);
+              margin-top: var(--space-3);
+              position: absolute;
+              top: 0;
+              left: 0;
+            "
+            class="text-sm uppercase tracking-widest"
+          >
+            How It Works
+          </h2>
+        </div>
+        <div class="how-it-works-text" aria-hidden="true">
+          <span>How</span>
+          <span>It Works</span>
+        </div>
+        <div class="how-it-works-black" aria-hidden="true"></div>
+        <div class="how-it-works-outline-text" aria-hidden="true">
+          <span>How</span>
+          <span>It Works</span>
+        </div>
+      </div>
+    </section>
+    <div id="how-it-works-steps" class="w-full">
+      <div class="how-it-works-steps-content">
+        <section class="how-it-works-step" data-step="1">
+          <div class="how-it-works-step-inner">
+            <div class="how-it-works-step-image how-it-works-step-image-split">
+              <img src="assets/images/step_1-1.webp" alt="" />
+              <hr class="split-divider" />
+              <img src="assets/images/step_1-2.webp" alt="" />
+            </div>
+            <div class="how-it-works-step-body">
+              <div class="how-it-works-step-copy">
+                <span class="how-it-works-step-mark">*</span>
+                <p>
+                  Create a 3D model of yourself so every recommendation is tailored to your exact
+                  weight and height.
+                </p>
+              </div>
+              <div class="how-it-works-step-number">
+                <span class="num">001</span>
+                <span class="caption">PROFILE /<br />3D SCAN</span>
+              </div>
+              <hr class="how-it-works-step-rule" />
+            </div>
+          </div>
+        </section>
+
+        <section class="how-it-works-step" data-step="2">
+          <div class="how-it-works-step-inner">
+            <div class="how-it-works-step-image"></div>
+            <div class="how-it-works-step-body">
+              <div class="how-it-works-step-copy">
+                <span class="how-it-works-step-mark">*</span>
+                <p>Tell Flair the vibe, the event or the mood you want to express, in your own words.</p>
+              </div>
+              <div class="how-it-works-step-number">
+                <span class="num">002</span>
+                <span class="caption">INPUT /<br />VIBE</span>
+              </div>
+              <hr class="how-it-works-step-rule" />
+            </div>
+          </div>
+        </section>
+
+        <section class="how-it-works-step" data-step="3">
+          <div class="how-it-works-step-inner">
+            <div class="how-it-works-step-image"></div>
+            <div class="how-it-works-step-body">
+              <div class="how-it-works-step-copy">
+                <span class="how-it-works-step-mark">*</span>
+                <p>Choose between real clothing options curated for you and buy them right away.</p>
+              </div>
+              <div class="how-it-works-step-number">
+                <span class="num">003</span>
+                <span class="caption">SHOP /<br />CHECKOUT</span>
+              </div>
+              <hr class="how-it-works-step-rule" />
+            </div>
+          </div>
+        </section>
+
+        <section class="how-it-works-step" data-step="4">
+          <div class="how-it-works-step-inner">
+            <div class="how-it-works-step-image"></div>
+            <div class="how-it-works-step-body">
+              <div class="how-it-works-step-copy">
+                <span class="how-it-works-step-mark">*</span>
+                <p>Save every outfit Flair builds you and grow your own virtual closet over time.</p>
+              </div>
+              <div class="how-it-works-step-number">
+                <span class="num">004</span>
+                <span class="caption">CLOSET /<br />SAVE</span>
+              </div>
+              <hr class="how-it-works-step-rule" />
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="how-it-works-counter-rail">
+        <div class="how-it-works-counter" aria-hidden="true">
+          <div class="how-it-works-counter-line">
+            <div class="how-it-works-counter-line-fill"></div>
+          </div>
+          <div class="how-it-works-counter-item" data-step="1">
+            <span class="marker"></span>
+            <span class="label">001</span>
+          </div>
+          <div class="how-it-works-counter-item" data-step="2">
+            <span class="marker"></span>
+            <span class="label">002</span>
+          </div>
+          <div class="how-it-works-counter-item" data-step="3">
+            <span class="marker"></span>
+            <span class="label">003</span>
+          </div>
+          <div class="how-it-works-counter-item" data-step="4">
+            <span class="marker"></span>
+            <span class="label">004</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section id="discover-yourself" class="w-full" style="background: #fff; height: 200vh; position: relative">
+      <div class="discover-yourself-pin">
+        <hr
+          style="
+            border: none;
+            border-top: 1px solid var(--color-ink);
+            margin: 0;
+            position: relative;
+            z-index: 31;
+          "
+        />
+        <h2
+          style="font-family: var(--font-sans); color: var(--color-ink); padding: 0 var(--space-6); margin-top: var(--space-3)"
+          class="text-sm uppercase tracking-widest"
+        >
+          Discover Yourself
+        </h2>
+        <div class="discover-yourself-stage">
+          <img src="assets/images/v1.webp" alt="" class="discover-yourself-img discover-yourself-v1" />
+          <img
+            src="assets/images/v2.webp"
+            alt=""
+            aria-hidden="true"
+            class="discover-yourself-img discover-yourself-v2"
+          />
+          <img
+            src="assets/images/v3.webp"
+            alt=""
+            aria-hidden="true"
+            class="discover-yourself-img discover-yourself-v3"
+          />
+        </div>
+      </div>
+    </section>
+    <div id="orbit-layer" aria-hidden="true">
+      <div class="orbit-square" data-img="assets/images/2.webp"></div>
+      <div class="orbit-square" data-img="assets/images/3.webp"></div>
+      <div class="orbit-square" data-img="assets/images/4.webp"></div>
+    </div>
+    <script src="https://unpkg.com/lenis@1/dist/lenis.min.js" defer></script>
+    <script src="js/smooth-scroll.js" defer></script>
+    <script src="js/typing.js" defer></script>
+    <script src="js/hero.js" defer></script>
+    <script src="js/how-it-works.js" defer></script>
+    <script src="js/discover-yourself.js" defer></script>
+    <script>
+      window.addEventListener('load', () => window.scrollTo(0, 0));
+    </script>
+  </body>
+</html>
