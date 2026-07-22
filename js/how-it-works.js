@@ -7,19 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoNav = document.getElementById('logo-nav');
   const stepsWrap = document.getElementById('how-it-works-steps');
 
-  const clamp01 = (n) => Math.min(1, Math.max(0, n));
-  const setWipe = (el, progress) => {
-    el.style.clipPath = `inset(0 ${100 - progress * 100}% 0 0)`;
-  };
-
   const update = () => {
-    const vh = window.innerHeight;
-    const rect = section.getBoundingClientRect();
-    // section is taller than the viewport and pinned via position: sticky,
-    // so the extra scroll distance while it's pinned (rect.height - vh)
-    // is what drives the wipe, not raw page scroll position
-    const scrollableRange = rect.height - vh;
-    const progress = scrollableRange > 0 ? clamp01(-rect.top / scrollableRange) : 0;
+    const progress = getPinnedProgress(section);
 
     // b&w + text wipe across the first half of the pinned scroll, black
     // wipe across the second half, so the order is purely scroll-driven
@@ -40,8 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     logoNav.classList.toggle('logo-white', blackProgress > 0 && !pastBlackSection);
   };
 
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
+  onScrollTick(update);
   update();
 
   // steps below scroll normally, driving the counter line + marker fill
@@ -87,10 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const updateLineProgress = () => {
-    const vh = window.innerHeight;
-    const rect = stepsWrap.getBoundingClientRect();
-    const total = rect.height - vh;
-    const progress = total > 0 ? clamp01(-rect.top / total) : 0;
+    const progress = getPinnedProgress(stepsWrap);
 
     // tracks live scroll position 1:1, growing and shrinking with it
     counterLineFill.style.height = `${progress * 100}%`;
@@ -101,9 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   layoutLine();
   updateLineProgress();
-  window.addEventListener('scroll', updateLineProgress, { passive: true });
-  window.addEventListener('resize', () => {
-    layoutLine();
-    updateLineProgress();
-  });
+  onScrollTick(updateLineProgress);
+  window.addEventListener('resize', layoutLine);
 });

@@ -5,19 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const v3 = section.querySelector('.discover-yourself-v3');
   const divider = section.querySelector('.discover-yourself-divider');
 
-  const clamp01 = (n) => Math.min(1, Math.max(0, n));
-  const setWipe = (el, progress) => {
-    el.style.clipPath = `inset(0 ${100 - progress * 100}% 0 0)`;
-  };
-
-  // section is taller than the viewport and pinned via position: sticky,
-  // so the extra scroll distance while it's pinned (rect.height - vh)
-  // is what drives the wipe, not raw page scroll position
   const update = () => {
-    const vh = window.innerHeight;
-    const rect = section.getBoundingClientRect();
-    const scrollableRange = rect.height - vh;
-    const progress = scrollableRange > 0 ? clamp01(-rect.top / scrollableRange) : 0;
+    const progress = getPinnedProgress(section);
 
     const v2Progress = clamp01(progress / 0.5);
     const v3Progress = clamp01((progress - 0.5) / 0.5);
@@ -34,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
+  onScrollTick(update);
   update();
 });

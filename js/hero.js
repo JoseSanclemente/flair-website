@@ -15,8 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   clipToIntro();
-  window.addEventListener('scroll', clipToIntro, { passive: true });
-  window.addEventListener('resize', clipToIntro);
+  onScrollTick(clipToIntro);
 });
 
 // tracked from page load so the real cursor position is already known by
@@ -61,6 +60,22 @@ document.addEventListener('hero:reveal', () => {
   let angle = 0;
   let lastTime = performance.now();
 
+  // the orbit loop only needs to run while the hero is actually visible;
+  // stop rescheduling rAF once #intro scrolls out (and resume when it scrolls
+  // back in) instead of burning CPU/battery for the rest of the page's lifetime
+  let rafId = null;
+  const intro = document.getElementById('intro');
+  new IntersectionObserver((entries) => {
+    const visible = entries[0].isIntersecting;
+    if (visible && rafId === null) {
+      lastTime = performance.now();
+      rafId = requestAnimationFrame(tick);
+    } else if (!visible && rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }).observe(intro);
+
   const tick = (now) => {
     const dt = (now - lastTime) / 1000;
     lastTime = now;
@@ -87,8 +102,8 @@ document.addEventListener('hero:reveal', () => {
       square.style.backgroundPosition = `${-(left - hRect.left)}px ${-(top - hRect.top)}px`;
     });
 
-    requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(tick);
   };
 
-  requestAnimationFrame(tick);
+  rafId = requestAnimationFrame(tick);
 });
